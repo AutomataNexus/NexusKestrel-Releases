@@ -3,161 +3,242 @@
 
   <h1>NexusKestrel</h1>
 
-  <p><strong>A secure, multi-protocol field controller and supervisor for building automation, in pure Rust on a single microcontroller.</strong></p>
+  <p><strong>Mini-JACE, protocol gateway and equipment controller: a small, secure field controller for building automation, in pure Rust on a single microcontroller.</strong></p>
 
   [![Firmware](https://img.shields.io/badge/firmware-Rust%20no__std-orange.svg?logo=rust)](https://www.rust-lang.org)
-  [![Runtime](https://img.shields.io/badge/runtime-Embassy%20async-orange.svg)](#architecture)
   [![MCU](https://img.shields.io/badge/MCU-RP2350%20Cortex--M33-c51a4a.svg?logo=raspberrypi)](#hardware)
-  [![Secure Boot](https://img.shields.io/badge/secure%20boot-signed%20images-2da44e.svg)](#security)
-  [![OTA](https://img.shields.io/badge/OTA-A%2FB%20signed%2C%20auto%20rollback-2da44e.svg)](#security)
+  [![Secure Boot](https://img.shields.io/badge/secure%20boot-signed%20firmware-2da44e.svg)](#security)
+  [![OTA](https://img.shields.io/badge/OTA-signed%2C%20auto%20rollback-2da44e.svg)](#security)
   [![BACnet](https://img.shields.io/badge/BACnet-MS%2FTP%20%7C%20IP-14b8a6.svg)](#protocols)
   [![Modbus](https://img.shields.io/badge/Modbus-RTU%20master%20%7C%20slave-14b8a6.svg)](#protocols)
-  [![Control](https://img.shields.io/badge/Talos-73%20control%20algorithms-14b8a6.svg)](#local-control)
-  [![Supervision](https://img.shields.io/badge/supervises-160%20devices%20%2F%204096%20points-2d2a26.svg)](#supervision)
-  [![On-device ML](https://img.shields.io/badge/on--device%20ML-per--unit%20fault%20models-purple.svg)](#on-device-fault-detection)
+  [![Legacy](https://img.shields.io/badge/legacy-N2%20%C2%B7%20LON%20%C2%B7%20CCN%20%C2%B7%20Comm4%20%C2%B7%20APOGEE-14b8a6.svg)](#protocols)
+  [![Sequences](https://img.shields.io/badge/Talos-69%20equipment%20sequences-14b8a6.svg)](#local-control)
+  [![Supervision](https://img.shields.io/badge/supervises-160%20devices%20%2F%204096%20points-2d2a26.svg)](#capacity)
+  [![Fault detection](https://img.shields.io/badge/fault%20detection-on--device%2C%20per%20unit-purple.svg)](#fault-detection)
   [![License](https://img.shields.io/badge/license-Proprietary-blue.svg)](LICENSE)
 
   [What it is](#what-it-is) ·
-  [Capabilities](#capabilities) ·
-  [Hardware](#hardware) ·
+  [Protocols](#protocols) ·
+  [Local control](#local-control) ·
+  [Fault detection](#fault-detection) ·
   [Security](#security) ·
-  [Licensing](COMMERCIAL.md) ·
-  [Contact](#contact)
+  [Hardware](#hardware) ·
+  [Licensing](COMMERCIAL.md)
 
 </div>
 
 ---
 
 This is the public **product, documentation, and legal** home for NexusKestrel. The
-firmware source is maintained privately by AutomataNexus, LLC; this repository holds
-no code. It contains the product description, the license, the end-user license
-agreement, the terms, the privacy, security, and safety policies, and (as they are
-published) release notes and signed firmware releases.
+firmware is designed and built in-house by AutomataNexus, LLC, and its source is
+private; this repository holds no code. It contains the product description, the
+license, the end-user license agreement, the terms, and the privacy, security, and
+safety policies.
 
 ## What it is
 
 Kestrels are the smallest falcons. They hover over one patch of ground and work it.
-A NexusKestrel sits at the equipment: it reads what is wired to it, drives relays and
-0-10 V outputs, talks to the field bus, runs the control sequence locally, and reports
-to the NexusEdge Console.
 
-One firmware image runs in three roles, set per installation:
+The NexusKestrel fills the role of a **mini-JACE**. It talks to equipment and building
+systems over the field protocols used in our industry, runs the same control sequences
+as our NexusEdge controllers, monitors its equipment for faults, and reports to the
+NexusEdge Console. It does all of this on one low-power microcontroller, with no
+Rockwell or Tridium licensing and no third-party runtime.
 
-| Role | What it does |
+| Use | What it does |
 |---|---|
-| **Equipment controller** | Runs the control sequence for one or more pieces of equipment (AHU, boiler plant, heat pump, unit ventilator, pumps) from its own inputs and outputs. |
-| **Supervisory controller** | Reads, trends, alarms, and commands a building's existing field controllers over their own protocols, the job a JACE or a legacy supervisor does, without replacing the field controllers. |
-| **Protocol gateway** | Presents what it reads as a BACnet device and a Modbus slave, so another BMS can see equipment it could not reach before. |
+| **Protocol gateway / supervisor** | Reads and writes BACnet, Modbus, Allen-Bradley PLCs, Niagara stations, and legacy trunks, and brings those points into the Console. This is how we take over a Niagara or other aging front end. |
+| **Point controller** | Sensors, valves, dampers, relays, and drives are wired to it and it runs the unit locally, with the Console supervising. |
+| **Integration bridge** | Presents a unit to a customer's existing BAS as a native BACnet or Modbus device. |
 
-With no sensors fitted it is a compact multi-protocol supervisor. With I/O boards fitted
-it is a full equipment controller. Both run on the same microcontroller and the same
-signed firmware.
+Each Kestrel is built for its job. Only the boards that unit needs are fitted, and its
+firmware image carries only the sequences that unit runs. A different sequence later
+is a signed over-the-air update of about a minute.
 
-## Capabilities
+## Protocols
 
-### Protocols
-
-| Protocol | Direction | Status |
-|---|---|---|
-| BACnet MS/TP | device (server) and master; reads and writes field devices | Available |
-| BACnet/IP | device (server), and a client for routed networks (ReadPropertyMultiple, COV) | Available |
-| Modbus RTU | slave to a supervisor or BMS; master to field devices and I/O boards | Available |
-| Allen-Bradley PCCC over EtherNet/IP | MicroLogix / SLC data-table reads and writes | Available |
-| Niagara oBIX | client to an existing Niagara station | Available |
-| Siemens APOGEE P2 | supervisor of APOGEE field panels | Available |
-| Johnson Controls N2 | field bus | Available |
-| Carrier CCN | reads | Available |
-| LonWorks FT-10 | reads and writes (transmit and receive) | Available |
-
-### Supervision
-
-- Supervises up to **160 field devices and 4,096 points** per Kestrel. The point table
-  lives in flash; RAM holds only live values.
-- Change-of-value subscriptions where the field device supports them, polled reads
-  where it does not, with per-device offline tracking and back-off.
-- **Every command is confirmed by read-back.** Each write reports *confirmed*,
-  *failed*, or *unconfirmed*; a command is never assumed to have landed.
-- Operator overrides with priority and release, an audit record for every command,
-  and per-site command policy (who may command what).
-- Integration sheet on demand: identity, network settings, per-port protocol settings,
-  the full BACnet object list, an EDE export, and the Modbus register map.
-
-### Local control
-
-- Control logic is **Talos**, the same Rust control-algorithm library that runs on the
-  NexusEdge controller fleet, ported to the microcontroller with its tests.
-  **73 algorithms** are available: AHU and zone sequences, staged and modulating boiler
-  plants, lead/lag pumps, VFD pump packs, heat pumps, unit ventilators, two-pipe
-  changeover, chillers, PID, and more.
-- Each image carries the algorithms its job needs. Up to **16 local control loops** run
-  per image (8 when the on-device fault model is also loaded). The loop count is a
-  memory budget per image, not a limit on the devices a Kestrel supervises.
-- Setpoints, schedules, and algorithm parameters are delivered as **signed
-  configuration bundles**, so a sequence change never needs a firmware change.
-- Fail-safe outputs on loss of control, and plant equipment with its own safeties is
-  enabled and disabled, never second-guessed.
-
-### On-device fault detection
-
-Each unit can carry a small fault model trained on **that unit's own operating
-history**, not on a generic equipment class. The models are trained with
-[AxonML](https://github.com/AutomataNexus/AxonML), our Rust ML framework, and run on
-the microcontroller. They flag short cycling, capacity loss, stuck sensors, and
-failure to reach setpoint, and publish their verdicts to the Console.
-
-### NexusEdge Console
-
-A Kestrel appears in the NexusEdge Console as its own controller: live values, trends,
-alarms, equipment graphics, commands with read-back, firmware and configuration
-updates, and the integration sheet. Alarm e-mail and the operator command path are
-handled by the Console.
-
-## Hardware
-
-| | |
+| Protocol | What the Kestrel does |
 |---|---|
-| Microcontroller | Raspberry Pi RP2350: dual Arm Cortex-M33, 520 KB SRAM, 4 MB flash, OTP key storage |
-| Networking | 2.4 GHz Wi-Fi; 10/100 wired Ethernet (falls back to Wi-Fi if the wired link fails) |
-| Field bus | 2 x RS-485 ports (one supervisor/BMS-facing, one field-facing) |
-| I/O (with expansion boards) | up to 16 analog inputs, 16 analog outputs (0-10 V), 8 relay outputs, 8 digital inputs |
-| Sensors | 10K Type II and 1-Wire temperature, differential pressure, occupancy |
-| Enclosure | DIN-rail enclosure with lever-style field terminals |
+| **BACnet MS/TP** | Full BACnet device on either RS-485 port; MS/TP master and client that reads and writes other devices at a set priority, each write read back |
+| **BACnet/IP** | Full BACnet device (UDP 47808, on Ethernet, Wi-Fi or both); supervisory client for routed BACnet networks. Off until enabled for a job, so a writable device never appears on a customer LAN unannounced |
+| **Modbus RTU** | Slave on RS-485 #1 for a CM5 or BAS; master on RS-485 #2 for drives, meters, and boilers. Built-in ABB ACH580 / ACS580 / ACS550 drive profiles plus a generic profile |
+| **Allen-Bradley PLCs** | MicroLogix 1100 / 1400 and SLC 5/05 over EtherNet/IP, using RSLogix addresses (N7:0, B3:1/0, T4:0.ACC, O:0/2). PLC mode and fault code monitored and logged |
+| **Niagara AX / N4** | Through the station over oBIX (JACEs and FX80s, using the station's watch service so the front end barely notices), or under it, directly on the field trunk |
+| **Niagara R2 (UNC-510)** | Reads points over HTTP and writes analog outputs through the station's own command interface, each write read back |
+| **Siemens APOGEE** | Supervisor of APOGEE field panels over P2 |
+| **Johnson Controls N2** | Decodes the trunk's polls and replies, so N2 points are read without disturbing the existing system; can ask each address whether a device is present |
+| **LonWorks FT-10** | Reads and writes LON devices directly: decodes network variables and sends updates as its own node on the channel (Trane Tracer ZN fan coils and other LonMark devices) |
+| **Carrier CCN** | Reads Carrier equipment directly as a CCN master |
+| **Trane Comm4** | Reads Trane Comm4 unit controllers and writes their occupied / unoccupied heating and cooling setpoints, each write read back; stays off the trunk whenever another Comm4 master is active |
+| **Staefa SMART II / NCRS** | Connects to the Staefa front end and commands its digital points |
+
+**Trunk identification.** Pointed at an unknown RS-485 trunk, the Kestrel listens and
+reports what it hears (N2, CCN, Siemens P1/FLN, MS/TP or Comm4) and why.
+
+**Integration sheet.** The Kestrel generates its own integration documents: identity,
+addresses and port settings, the full BACnet object list with units and current values,
+an **EDE file** for the front end's BACnet import, and the Modbus map.
+
+**Every command is read back.** Whether a command comes from the Console, the service
+shell, Modbus, BACnet, or the Kestrel's own control, it is reported as **confirmed**,
+**FAILED**, or **unconfirmed**, and is only reported complete when the read-back
+confirms it.
+
+## Local control
+
+The Kestrel runs **Talos**, the same control engine as our CM5 and NexusEdge
+controllers. Every Talos equipment sequence is ported with its logic unchanged and its
+full test suite, so a Kestrel runs a unit exactly the way the CM5 beside it would.
+
+**69 equipment sequences**, by family:
+
+| Family | Sequences |
+|---|---|
+| Air handlers | TMC AHU · TMC AHU + Exhaust Damper · TMC AHU (Cooling-only) · TMC AHU 4-pipe Lead/Lag · TMC Zone AHU · TMC DX AHU · DX + CW AHU · TMC Make-Up Air · TMC Steam AHU · Rooftop Unit |
+| Dedicated outdoor air | TMC Direct-Fired DOAS + DX · TMC DOAS + DX + Season Relay · DOAS Gas Heat + 2-Stage DX · DOAS Permissive |
+| Zones and terminals | Fan Coil Unit (2-Way / 4-Way) · Classroom Unit Ventilator · TMC VAV · TMC VAV + DX · Zone Reheat · TMC Electric Heat · Heat Pump |
+| Chillers, towers, geothermal | TMC Chiller · TMC Chiller (simplified) · TMC Chiller RTAA · TMC Chiller Plant · Water-Cooled Chiller · Chiller Remote Enable · Lead/Lag Chillers · Cooling Tower · TMC Geo Stage · TMC Seasonal Changeover |
+| Boilers and steam | Lead/Lag Boiler · Cascade Boiler Plant · Cascade Boiler Plant (Lochinvar PowerFin) · TMC Domestic Boiler · TMC Comfort Boiler · Steam-Boiler Safety Monitor · TMC Steambundle · TMC Steam Reset |
+| Pumps and loops | VFD Pump Pack · Lead/Lag Pumps · TMC Loop Pump Plant · TMC Circulator Pump · TMC Lead/Lag Enable · Pressure Booster Pumps · Pressure Booster Pumps (DP Proof) |
+| Pools and natatoriums | Natatorium PoolPak · TMC Natatorium · TMC Natatorium AHU · Pool Controller (Heat Pump) · Pool Controller (Gas Heater) |
+| Greenhouses | TMC Greenhouse · TMC Greenhouse Plant |
+| Residential | Residential Furnace · Residential Heat Pump · Residential Boiler · Smart Home Controller · Smart Garden |
+| Lighting and monitoring | Commercial Lighting · Electrical Load Monitor · Water Monitor (City) · Water Monitor (Well) |
+| General-purpose loops | PID · Linear Proportional · On/Off · Cascade · TMC · Always-On Enable · Model Predictive Control (advisory) |
+
+- **Custom logic from NexusFoundry.** Technicians open any sequence as a wire sheet of
+  logic blocks, modify it or build new logic, test it in the live simulator by tripping
+  safeties and alarms, and export it, once it passes Foundry's verification gates and
+  is signed, as a native sequence for the Kestrel.
+- **Point assignments.** Each sequence input is assigned to a point, a combination of
+  points, or a scaled reading (for example loop DP = AI 1 × 20 − AI 2 × 20, or a high
+  limit built from a supply sensor). A sensor that is not reading is treated as
+  missing; the sequence never substitutes a value.
+- **Life safety.** Every sequence honors the safety inputs it uses (smoke, fire alarm,
+  freeze stat, flow, high limit, airflow proof, damper end switch), all normally
+  closed. A failed sensor opens its limit and trips; it never reads as safe.
+- **Hand and overrides.** An output placed in hand from the Console, the shell, Modbus
+  or a BACnet priority write is left alone until released, and the sequence resumes
+  smoothly. Relays keep a minimum off time, including after power-up, so a reset
+  cannot short-cycle a compressor.
+- **Plant templates.** Tested configurations for common plants, such as lead/lag
+  boilers with outdoor-air reset and lead/lag loop pumps on differential pressure, and
+  classroom unit ventilators, filled in per site.
+- **Settings change live**, one at a time or as a signed settings bundle, with no
+  rebuild and no restart. Sequences on a local schedule use the site's local time.
+
+## Fault detection
+
+**On-device fault detection.** The Kestrel carries a fault-detection model trained for
+the unit it monitors. Every 3 minutes it scores that unit; three abnormal scores in a
+row raise a flag in the Console with the likely fault. The model runs on the Kestrel's
+own processor, with no accelerator and no cloud round trip. An indicator light on the
+board is lit while it scores.
+
+**On-device learning.** The Kestrel can refine its own model from the unit's install
+labels while it runs, in small steps and only when control has spare capacity.
+**Control always takes priority.** A refined model is not used until the AutomataNexus
+server has re-checked it against the model the unit was commissioned with (no worse on
+known conditions, no new false alarms) and signed it for that controller. The Kestrel
+checks that signature before using the model and again at every start. Anything
+unsigned or unverified is discarded.
+
+## Capacity
+
+| Limit | Per Kestrel |
+|---|---|
+| Supervised devices and points (supervisory image) | 160 devices / 4,096 points, from a point table in flash |
+| Equipment under local control at once | 16, each with its own sequence, parameters, and inputs (8 with on-device learning running) |
+| Field points | 128, shared by all equipment and the BACnet / Modbus mirrors |
+| BACnet objects | 192, with 16-level priority arrays and change-of-value subscriptions |
+| Inputs per sequence | 32 named inputs, 32 outputs |
+| Settings | 16 KB, kept as two alternating copies in flash; changes take effect live |
+| Control pass | every 2 seconds, using a small fraction of the processor's time |
+
+## The NexusEdge Console
+
+The Kestrel connects **outbound only** to the NexusEdge Console over TLS 1.3, verifying
+the server against our own certificate authority built into its firmware. It sends
+status and readings every 30 seconds and checks for commands every 5 seconds. It uses
+wired Ethernet when present and falls back to Wi-Fi automatically.
+
+Each unit the Kestrel runs appears in the Console as its own equipment, with the same
+field names as every other controller in the fleet, so a Kestrel's boilers and pumps
+sit beside a CM5's on the same pages and alarms.
 
 ## Security
 
-The Kestrel is designed for networks where a controller must not be the way in.
+Security is layered from the chip up, and each layer holds even if another fails.
 
-- **Secure boot.** The chip runs only firmware signed with AutomataNexus keys, held
-  in one-time-programmable memory.
-- **A/B signed over-the-air updates with automatic rollback.** A new image runs on
-  trial; if it does not come up healthy, the Kestrel returns to the previous image on
-  its own. Updates are compressed for slow links.
-- **Signed configuration bundles.** Configuration is verified before it is applied.
-- **Encrypted uplink.** TLS 1.3 to the Console with a per-device credential, scoped to
-  that one controller and revocable.
-- **Our own encrypted operator link.** Local operator access uses an AutomataNexus
-  protocol built on vetted primitives (X25519, Ed25519, ChaCha20-Poly1305), not a
-  general-purpose remote shell.
-- **NexusShield-Kestrel.** A tamper-evident SHA-256 audit chain, a write-rate governor
-  that protects equipment from rapid cycling, and field-bus threat scoring that bans
-  writes from a misbehaving bus peer while leaving off-commands and operator access
-  intact.
+- **Secure boot.** The RP2350 checks the firmware's signature at every start and runs
+  only firmware signed with the AutomataNexus key, which never leaves our build
+  machines. Altered firmware will not start, and a flash dump copied to another board
+  will not start there. The partition layout is signed too.
+- **Device identity.** Every Kestrel has its own key, accepted by the Console only for
+  that controller. A lost or retired unit is shut out by revoking its key.
+- **No internet-facing services.** The Console link is outbound only. Remote service
+  runs only inside AutomataNexus's own encrypted, peer-authenticated mesh. BACnet/IP is
+  off by default.
+- **Encrypted direct link on site.** On a LAN with no internet, only enrolled
+  technician laptops can connect, over our own protocol authenticated in both
+  directions with fresh session keys; any replayed or altered message ends the session.
+- **Signed updates with automatic rollback.** An update is verified on arrival, again
+  after it is written, and by the processor on first start. It runs on trial; if it is
+  not healthy within five minutes, or crashes or hangs, the previous firmware is
+  restored automatically.
+- **Signed settings and signed models.** Settings bundles and refined fault models are
+  signed for one specific Kestrel and refused by every other. A bundle is checked as a
+  whole before anything is saved.
+- **NexusShield on the Kestrel.** A write governor (per-output change limits and relay
+  minimum off times) on every write from every source; a tamper-evident hash-chained
+  audit log whose head is reported to the Console; and bus protection that refuses
+  writes from a misbehaving Modbus bus for 10 minutes while reads continue. Turning an
+  output **off** is always allowed, and our own service access is never locked out.
+- **Fail-safe.** Outputs power up off / 0 V. If the supervisor is silent for 15 minutes
+  while outputs are commanded, they return to off / 0 V; with local control running,
+  only outputs placed in hand are released. Boards that brown out are restored to the
+  commanded state on the next pass.
+- **Hardening.** Hardware stack limits, secrets obfuscated in the firmware, no symbol
+  table, no source paths, and no error-message text in shipped images. Optional
+  per-chip lock-down of the debug port and USB read-back for the highest-security
+  installations.
+- **Penetration tested** with AutomataNexus's own penetration-testing tool against the
+  firmware, its tools, and its Console endpoint.
 
-See [SECURITY.md](SECURITY.md) for how to report a vulnerability.
+See [SECURITY.md](SECURITY.md) to report a vulnerability.
 
-## Architecture
+## Hardware
 
-- Pure Rust, `no_std`, on the Embassy async runtime. No operating system, no C runtime
-  in the control path.
-- Protocol stacks are AutomataNexus code, host-tested and gated before every build.
-- Every build passes a gate of lint-clean builds across all supported feature sets and
-  the full host test suites before it can be signed.
+| Item | Specification |
+|---|---|
+| Processor | Raspberry Pi RP2350 (dual Arm Cortex-M33), 520 KB RAM, 4 MB flash |
+| Wireless | 2.4 GHz Wi-Fi (802.11n) |
+| Wired network | 10/100 Ethernet, DHCP; preferred over Wi-Fi when present |
+| Serial | Two RS-485 ports, each independently Modbus RTU, BACnet MS/TP, or a legacy protocol |
+| LonWorks | FT-10 on board |
+| Analog inputs | Up to 16, each 0-10 V or 4-20 mA, 16-bit |
+| Analog outputs | Up to 16, 0-10 V, 12-bit |
+| Relay outputs | Up to 8, through DC solid-state relays to RIB coils |
+| Digital inputs | Up to 8 dry contacts |
+| Built-in sensors | Three 10K Type II thermistors, up to eight DS18B20 pipe / air sensors, differential pressure, PIR occupancy |
+| Power | 5 V DC from a DIN-rail supply |
+| Enclosure | Kestrel-Aero enclosure, boards on removable decks |
+
+| Configuration | Hardware | Typical use |
+|---|---|---|
+| **Protocol gateway** | Controller, RS-485, Ethernet | Take over or integrate a front end or field trunk; no local point wiring |
+| **Point controller** | Gateway plus the AI, AO, and relay boards the unit needs | Run any equipment type locally with any of the 69 sequences or custom logic |
+| **Fully loaded** | 16 AI, 16 AO, 8 relays, 8 DI, two RS-485 ports, Ethernet, Wi-Fi | A small plant, or several units on one controller |
+
+**Status light.** A repeating blink code shows heartbeat, Console data, traffic,
+Ethernet, and Wi-Fi at a glance, even with the network down. A second light is lit
+while the fault model scores.
 
 ## Licensing and purchase
 
-NexusKestrel is proprietary hardware and firmware, sold and supported by
-AutomataNexus, LLC, and installed by our controls technicians or authorized partners.
-See [COMMERCIAL.md](COMMERCIAL.md).
+NexusKestrel is proprietary hardware and firmware from AutomataNexus, LLC, installed
+and commissioned by our controls technicians or authorized partners. See
+[COMMERCIAL.md](COMMERCIAL.md).
 
 | Document | |
 |---|---|
@@ -185,6 +266,6 @@ See [COMMERCIAL.md](COMMERCIAL.md).
 <div align="center">
 
 **© 2026 AutomataNexus, LLC.** All rights reserved.
-NexusKestrel, NexusEdge, NexusShield, Talos, and AxonML are trademarks of AutomataNexus, LLC.
+NexusKestrel, NexusEdge, NexusShield, NexusFoundry, and Talos are trademarks of AutomataNexus, LLC.
 
 </div>
