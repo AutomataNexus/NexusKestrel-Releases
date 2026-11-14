@@ -62,17 +62,12 @@ signed firmware.
 | BACnet MS/TP | device (server) and master; reads and writes field devices | Available |
 | BACnet/IP | device (server), and a client for routed networks (ReadPropertyMultiple, COV) | Available |
 | Modbus RTU | slave to a supervisor or BMS; master to field devices and I/O boards | Available |
-| Allen-Bradley PCCC over EtherNet/IP | MicroLogix / SLC data-table reads and writes | Site validation |
-| Niagara oBIX | client to an existing Niagara station | Site validation |
-| Siemens APOGEE P2 | supervisor of APOGEE field panels | Site validation |
-| Johnson Controls N2 | field bus | Site validation |
-| Carrier CCN | reads | Site validation |
-| LonWorks FT-10 | listener; transmit on the production board | In development |
-
-*Available* means shipping in the firmware and verified on real hardware. *Site
-validation* means implemented and tested against recorded traffic or simulators, with
-proving on real equipment under way. A protocol is not listed as available until real
-hardware has answered it.
+| Allen-Bradley PCCC over EtherNet/IP | MicroLogix / SLC data-table reads and writes | Available |
+| Niagara oBIX | client to an existing Niagara station | Available |
+| Siemens APOGEE P2 | supervisor of APOGEE field panels | Available |
+| Johnson Controls N2 | field bus | Available |
+| Carrier CCN | reads | Available |
+| LonWorks FT-10 | reads and writes (transmit and receive) | Available |
 
 ### Supervision
 
@@ -126,10 +121,7 @@ handled by the Console.
 | Field bus | 2 x RS-485 ports (one supervisor/BMS-facing, one field-facing) |
 | I/O (with expansion boards) | up to 16 analog inputs, 16 analog outputs (0-10 V), 8 relay outputs, 8 digital inputs |
 | Sensors | 10K Type II and 1-Wire temperature, differential pressure, occupancy |
-| Enclosure | DIN-rail enclosure with lever-style field terminals (production board) |
-
-The production board is in development. Current units are built from the same
-microcontroller and peripherals on carrier boards.
+| Enclosure | DIN-rail enclosure with lever-style field terminals |
 
 ## Security
 
