@@ -1,7 +1,7 @@
 # Trademarks
 
 **NexusKestrel**, the NexusKestrel falcon mark, **NexusEdge**, **NexusShield**,
-**Talos**, **AxonML**, and **AutomataNexus** are trademarks of AutomataNexus, LLC. They
+**Talos**, **AxonML**, **Oxiryn**, and **AutomataNexus** are trademarks of AutomataNexus, LLC. They
 may be used to refer to our products accurately. They may not be used in a way that
 suggests endorsement, or in the name or branding of another product.
 

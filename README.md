@@ -142,14 +142,21 @@ full test suite, so a Kestrel runs a unit exactly the way the CM5 beside it woul
 
 Every Kestrel can carry its own fault detector, and it keeps learning in the field.
 
+The models are built with **Oxiryn**, our bare-metal machine-learning framework: the
+bare-metal port of **[AxonML](https://github.com/AutomataNexus/AxonML)**, our in-house
+AI / ML / LLM framework written in Rust. AxonML trains at scale on GPUs; Oxiryn is the
+separate framework that trains and runs the same kind of models where there is no
+operating system, no allocator, and a few hundred kilobytes of memory. Both are
+AutomataNexus's own.
+
 ### The detector
 
 - **One model per unit.** Each piece of equipment gets its own model, trained on **that
   unit's own operating history** and on faults generated from that unit's own measured
   operating law: how it stages, cycles, and responds to its setpoint and the weather. No
   two units share a model, and no model is a generic equipment-class template.
-- **Small enough for a microcontroller.** The network is trained quantization-aware and
-  packed to 4-bit weights (about 11 KB). It reads a two-hour window of the unit (8 ticks
+- **Small enough for a microcontroller.** The network is trained in Oxiryn,
+  quantization-aware, and packed to 4-bit weights (about 11 KB). It reads a two-hour window of the unit (8 ticks
   of 9 signals, with outdoor air from the site's weather feed) and has two heads: an
   anomaly score and a fault class.
 - **Names the fault.** For a water-source heat pump the classes are normal, capacity
@@ -378,6 +385,6 @@ and commissioned by our controls technicians or authorized partners. See
 <div align="center">
 
 **© 2026 AutomataNexus, LLC.** All rights reserved.
-NexusKestrel, NexusEdge, NexusShield, NexusFoundry, and Talos are trademarks of AutomataNexus, LLC.
+NexusKestrel, NexusEdge, NexusShield, NexusFoundry, Talos, Oxiryn, and AxonML are trademarks of AutomataNexus, LLC.
 
 </div>
